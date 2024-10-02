@@ -95,10 +95,12 @@ createChannelTx() {
   docker cp "$CONFIG_PATH" $CONTAINER_NAME:/fabric-config || removeContainer $CONTAINER_NAME
 
   docker exec -i $CONTAINER_NAME mkdir /config || removeContainer $CONTAINER_NAME
-  docker exec -i $CONTAINER_NAME configtxgen --configPath ./fabric-config -profile "${CONFIG_PROFILE}" -outputBlock ./config/channel.pb -channelID "${CHANNEL_NAME}" 
+  docker exec -i $CONTAINER_NAME configtxgen --configPath ./fabric-config -profile "${CONFIG_PROFILE}" -outputBlock ./config/channel.pb -channelID "${CHANNEL_NAME}"  || removeContainer $CONTAINER_NAME
   sudo chown sanket:sanket fabric-config/config
 
-  docker cp $CONTAINER_NAME:/config/channel.pb "$CHANNEL_TX_PATH" 
+  docker cp $CONTAINER_NAME:/config/channel.pb "$CHANNEL_TX_PATH" || removeContainer $CONTAINER_NAME
+
+  removeContainer $CONTAINER_NAME
 
 
 }

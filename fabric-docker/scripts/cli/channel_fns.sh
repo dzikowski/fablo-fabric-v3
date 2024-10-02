@@ -21,10 +21,9 @@ createChannelAndJoin() {
 
   mkdir "$DIR_NAME" && cd "$DIR_NAME"
 
-  cp /var/hyperledger/cli/config/"$CHANNEL_NAME".tx .
+  cp /var/hyperledger/cli/config/"$CHANNEL_NAME".pb .
 
-  peer channel create -o "${ORDERER_URL}" -c "${CHANNEL_NAME}" -f ./"$CHANNEL_NAME".tx
-  peer channel join -b "${CHANNEL_NAME}".block
+  osnadmin channel join --channelID "${CHANNEL_NAME}" --config-block ./"$CHANNEL_NAME".pb -o "${ORDERER_URL}"
 
   rm -rf "$DIR_NAME"
 }
@@ -65,7 +64,7 @@ createChannelAndJoinTls() {
 
   cp /var/hyperledger/cli/config/"$CHANNEL_NAME".pb .
   set -x
-  osnadmin channel join --channelID "${CHANNEL_NAME}" --config-block ./"$CHANNEL_NAME".pb -o "${ORDERER_URL}" --ca-file "${TLS_CA_CERT_PATH}" --client-cert "${ADMIN_SIGN_CERT}" --client-key "${ADMIN_PRIVATE_KEY}"
+  osnadmin channel join --channelID "${CHANNEL_NAME}" --config-block ./"$CHANNEL_NAME".pb -o "${ORDERER_URL}" # --ca-file "${TLS_CA_CERT_PATH}" --client-cert "${ADMIN_SIGN_CERT}" --client-key "${ADMIN_PRIVATE_KEY}"
   rm -rf "$DIR_NAME"
 }
 
@@ -121,7 +120,7 @@ fetchChannelAndJoinTls() {
   echo "   CORE_PEER_TLS_ROOTCERT_FILE: $CORE_PEER_TLS_ROOTCERT_FILE"
 
   mkdir "$DIR_NAME" && cd "$DIR_NAME"
-
+  set -x
   peer channel fetch newest -c "${CHANNEL_NAME}" --orderer "${ORDERER_URL}" --tls --cafile "$TLS_CA_CERT_PATH"
   peer channel join -b "${CHANNEL_NAME}"_newest.block --tls --cafile "$TLS_CA_CERT_PATH"
 
