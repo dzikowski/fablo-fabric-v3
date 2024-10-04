@@ -23,7 +23,7 @@ peers:
     url: grpcs://localhost:7042
     tlsCACerts:
       path: >-
-        /home/sanket/openSource/samples/fablo-target/fabric-config/crypto-config/peerOrganizations/org1.example.com/peers/peer1.org1.example.com/tls/ca.crt
+        /home/sanket/openSource/fablo/samples/fablo-target/fabric-config/crypto-config/peerOrganizations/org1.example.com/peers/peer1.org1.example.com/tls/ca.crt
     grpcOptions:
       ssl-target-name-override: peer1.org1.example.com
 certificateAuthorities:
