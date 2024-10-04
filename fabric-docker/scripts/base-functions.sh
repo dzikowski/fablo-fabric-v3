@@ -96,7 +96,7 @@ createChannelTx() {
 
   docker exec -i $CONTAINER_NAME mkdir /config || removeContainer $CONTAINER_NAME
   docker exec -i $CONTAINER_NAME configtxgen --configPath ./fabric-config -profile "${CONFIG_PROFILE}" -outputBlock ./config/channel.pb -channelID "${CHANNEL_NAME}" 
-  sudo chown jakubdzikowski:staff fabric-config/config
+  sudo chown sanket:sanket fabric-config/config
 
   docker cp $CONTAINER_NAME:/config/channel.pb "$CHANNEL_TX_PATH" || removeContainer $CONTAINER_NAME
 
