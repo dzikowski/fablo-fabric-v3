@@ -67,6 +67,9 @@ createChannelAndJoinTls() {
   osnadmin channel join --channelID "${CHANNEL_NAME}" --config-block ./"$CHANNEL_NAME".pb -o "${ORDERER_URL}" # --ca-file "${TLS_CA_CERT_PATH}" --client-cert "${ADMIN_SIGN_CERT}" --client-key "${ADMIN_PRIVATE_KEY}"
   peer channel list
   rm -rf "$DIR_NAME"
+
+  sleep 2
+  peer channel list
 }
 
 fetchChannelAndJoin() {
@@ -126,4 +129,7 @@ fetchChannelAndJoinTls() {
   peer channel join -b "${CHANNEL_NAME}"_newest.block --tls --cafile "$TLS_CA_CERT_PATH"
 
   rm -rf "$DIR_NAME"
+
+  sleep 2
+  peer channel list
 }
