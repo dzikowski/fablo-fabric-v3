@@ -23,6 +23,7 @@ certsGenerate() {
   fi
 
   docker run -i -d -w="/" --name $CONTAINER_NAME hyperledger/fabric-tools:"${FABRIC_VERSION}" bash || removeContainer $CONTAINER_NAME
+
   docker cp "$CONFIG_PATH" $CONTAINER_NAME:/fabric-config || removeContainer $CONTAINER_NAME
 
   docker exec -i $CONTAINER_NAME cryptogen generate --config=./fabric-config/"$CRYPTO_CONFIG_FILE_NAME" || removeContainer $CONTAINER_NAME
@@ -101,8 +102,6 @@ createChannelTx() {
   docker cp $CONTAINER_NAME:/config/channel.pb "$CHANNEL_TX_PATH" || removeContainer $CONTAINER_NAME
 
   removeContainer $CONTAINER_NAME
-
-
 }
 
 createNewChannelUpdateTx() {
@@ -113,7 +112,7 @@ createNewChannelUpdateTx() {
   local CONFIG_PROFILE=$3
   local CONFIG_PATH=$4
   local OUTPUT_PATH=$5
-  local ANCHOR_PEER_UPDATE_PATH="$OUTPUT_PATH/${MSP_NAME}anchors-$CHANNEL_NAME.tx"
+  local ANCHOR_PEER_UPDATE_PATH="$OUTPUT_PATH/${MSP_NAME}anchors-$CHANNEL_NAME.pb"
 
   echo "Creating new channel config block. Channel: $CHANNEL_NAME for organization $MSP_NAME..."
   inputLog "CHANNEL_NAME: $CHANNEL_NAME"
@@ -136,11 +135,11 @@ createNewChannelUpdateTx() {
   docker exec -i $CONTAINER_NAME configtxgen \
     --configPath ./fabric-config \
     -profile "${CONFIG_PROFILE}" \
-    -outputAnchorPeersUpdate ./config/"${MSP_NAME}"anchors.tx \
+    -outputAnchorPeersUpdate ./config/"${MSP_NAME}"anchors.pb \
     -channelID "${CHANNEL_NAME}" \
     -asOrg "${MSP_NAME}" || removeContainer $CONTAINER_NAME
 
-  docker cp $CONTAINER_NAME:/config/"${MSP_NAME}"anchors.tx "$ANCHOR_PEER_UPDATE_PATH" || removeContainer $CONTAINER_NAME
+  docker cp $CONTAINER_NAME:/config/"${MSP_NAME}"anchors.pb "$ANCHOR_PEER_UPDATE_PATH" || removeContainer $CONTAINER_NAME
 
   removeContainer $CONTAINER_NAME
 }
@@ -151,7 +150,7 @@ notifyOrgAboutNewChannel() {
   local CLI_NAME=$3
   local PEER_ADDRESS=$4
   local ORDERER_URL=$5
-  local ANCHOR_PEER_UPDATE_PATH="/var/hyperledger/cli/config/${MSP_NAME}anchors-$CHANNEL_NAME.tx"
+  local ANCHOR_PEER_UPDATE_PATH="/var/hyperledger/cli/config/${MSP_NAME}anchors-$CHANNEL_NAME.pb"
 
   echo "Updating channel $CHANNEL_NAME for organization $MSP_NAME..."
   inputLog "CHANNEL_NAME: $CHANNEL_NAME"
@@ -178,7 +177,7 @@ notifyOrgAboutNewChannelTls() {
   local CLI_NAME=$3
   local PEER_ADDRESS=$4
   local ORDERER_URL=$5
-  local ANCHOR_PEER_UPDATE_PATH="/var/hyperledger/cli/config/${MSP_NAME}anchors-$CHANNEL_NAME.tx"
+  local ANCHOR_PEER_UPDATE_PATH="/var/hyperledger/cli/config/${MSP_NAME}anchors-$CHANNEL_NAME.pb"
   local CA_CERT="/var/hyperledger/cli/"${6}
 
   echo "Updating channel $CHANNEL_NAME for organization $MSP_NAME (TLS)..."
@@ -205,7 +204,7 @@ deleteNewChannelUpdateTx() {
   local CHANNEL_NAME=$1
   local MSP_NAME=$2
   local CLI_NAME=$3
-  local ANCHOR_PEER_UPDATE_PATH="/var/hyperledger/cli/config/${MSP_NAME}anchors-$CHANNEL_NAME.tx"
+  local ANCHOR_PEER_UPDATE_PATH="/var/hyperledger/cli/config/${MSP_NAME}anchors-$CHANNEL_NAME.pb"
 
   echo "Deleting new channel config block. Channel: $CHANNEL_NAME, Organization: $MSP_NAME"
   inputLogShort "CHANNEL_NAME: $CHANNEL_NAME, MSP_NAME: $MSP_NAME, CLI_NAME: $CLI_NAME, ANCHOR_PEER_UPDATE_PATH: $ANCHOR_PEER_UPDATE_PATH"
