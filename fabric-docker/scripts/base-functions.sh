@@ -77,7 +77,8 @@ createChannelTx() {
   local CONFIG_PATH=$2
   local CONFIG_PROFILE=$3
   local OUTPUT_PATH=$4
-  local CHANNEL_TX_PATH="$OUTPUT_PATH/$CHANNEL_NAME".pb
+  local CHANNEL_TX_PATH="$OUTPUT_PATH/$CHANNEL_NAME.pb"
+  echo CHNANEL_TX_PATH: $CHANNEL_TX_PATH
 
   echo "Creating channelTx for $CHANNEL_NAME..."
   inputLog "CONFIG_PATH: $CONFIG_PATH"
@@ -95,10 +96,12 @@ createChannelTx() {
   docker cp "$CONFIG_PATH" $CONTAINER_NAME:/fabric-config || removeContainer $CONTAINER_NAME
 
   docker exec -i $CONTAINER_NAME mkdir /config || removeContainer $CONTAINER_NAME
-  docker exec -i $CONTAINER_NAME configtxgen --configPath ./fabric-config -profile "${CONFIG_PROFILE}" -outputBlock ./config/channel.pb -channelID "${CHANNEL_NAME}" 
-  sudo chown sanket:sanket fabric-config/config
+  docker exec -i $CONTAINER_NAME configtxgen --configPath ./fabric-config -profile "${CONFIG_PROFILE}" -outputBlock ./config/channel.pb -channelID "${CHANNEL_NAME}"
+ 
+ 
+  # sudo chown sanket:sanket fabric-config/config
 
-  docker cp $CONTAINER_NAME:/config/channel.pb "$CHANNEL_TX_PATH" || removeContainer $CONTAINER_NAME
+  docker exec -i $CONTAINER_NAME cat /config/channel.pb > "$CHANNEL_TX_PATH" || removeContainer $CONTAINER_NAME
 
   removeContainer $CONTAINER_NAME
 
@@ -136,11 +139,12 @@ createNewChannelUpdateTx() {
   docker exec -i $CONTAINER_NAME configtxgen \
     --configPath ./fabric-config \
     -profile "${CONFIG_PROFILE}" \
-    -outputAnchorPeersUpdate ./config/"${MSP_NAME}"anchors.tx \
+    -outputAnchorPeersUpdate ./config/"${MSP_NAME}"anchors.pb \
     -channelID "${CHANNEL_NAME}" \
     -asOrg "${MSP_NAME}" || removeContainer $CONTAINER_NAME
 
-  docker cp $CONTAINER_NAME:/config/"${MSP_NAME}"anchors.tx "$ANCHOR_PEER_UPDATE_PATH" || removeContainer $CONTAINER_NAME
+  docker cp $CONTAINER_NAME:/config/"${MSP_NAME}"anchors.pb "$ANCHOR_PEER_UPDATE_PATH" || removeContainer $CONTAINER_NAME
+
 
   removeContainer $CONTAINER_NAME
 }
@@ -151,7 +155,7 @@ notifyOrgAboutNewChannel() {
   local CLI_NAME=$3
   local PEER_ADDRESS=$4
   local ORDERER_URL=$5
-  local ANCHOR_PEER_UPDATE_PATH="/var/hyperledger/cli/config/${MSP_NAME}anchors-$CHANNEL_NAME.tx"
+  local ANCHOR_PEER_UPDATE_PATH="/var/hyperledger/cli/config/${MSP_NAME}anchors-$CHANNEL_NAME.pb"
 
   echo "Updating channel $CHANNEL_NAME for organization $MSP_NAME..."
   inputLog "CHANNEL_NAME: $CHANNEL_NAME"

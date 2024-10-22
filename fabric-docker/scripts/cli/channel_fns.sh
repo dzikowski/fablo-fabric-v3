@@ -65,6 +65,7 @@ createChannelAndJoinTls() {
   cp /var/hyperledger/cli/config/"$CHANNEL_NAME".pb .
   set -x
   osnadmin channel join --channelID "${CHANNEL_NAME}" --config-block ./"$CHANNEL_NAME".pb -o "${ORDERER_URL}" # --ca-file "${TLS_CA_CERT_PATH}" --client-cert "${ADMIN_SIGN_CERT}" --client-key "${ADMIN_PRIVATE_KEY}"
+  peer channel list
   rm -rf "$DIR_NAME"
 }
 
