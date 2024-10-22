@@ -19,7 +19,7 @@ networkUp() {
   generateChannelsArtifacts
   installChannels
   installChaincodes
-  notifyOrgsAboutChannels
+  # notifyOrgsAboutChannels
   printStartSuccessInfo
 }
 

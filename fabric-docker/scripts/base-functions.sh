@@ -78,7 +78,8 @@ createChannelTx() {
   local CONFIG_PATH=$2
   local CONFIG_PROFILE=$3
   local OUTPUT_PATH=$4
-  local CHANNEL_TX_PATH="$OUTPUT_PATH/$CHANNEL_NAME".pb
+  local CHANNEL_TX_PATH="$OUTPUT_PATH/$CHANNEL_NAME.pb"
+  echo CHNANEL_TX_PATH: $CHANNEL_TX_PATH
 
   echo "Creating channelTx for $CHANNEL_NAME..."
   inputLog "CONFIG_PATH: $CONFIG_PATH"
@@ -96,10 +97,9 @@ createChannelTx() {
   docker cp "$CONFIG_PATH" $CONTAINER_NAME:/fabric-config || removeContainer $CONTAINER_NAME
 
   docker exec -i $CONTAINER_NAME mkdir /config || removeContainer $CONTAINER_NAME
-  docker exec -i $CONTAINER_NAME configtxgen --configPath ./fabric-config -profile "${CONFIG_PROFILE}" -outputBlock ./config/channel.pb -channelID "${CHANNEL_NAME}" 
-  sudo chown jakubdzikowski:staff fabric-config/config
+  docker exec -i $CONTAINER_NAME configtxgen --configPath ./fabric-config -profile "${CONFIG_PROFILE}" -outputBlock ./config/channel.pb -channelID "${CHANNEL_NAME}"
 
-  docker cp $CONTAINER_NAME:/config/channel.pb "$CHANNEL_TX_PATH" || removeContainer $CONTAINER_NAME
+  docker exec -i $CONTAINER_NAME cat /config/channel.pb > "$CHANNEL_TX_PATH" || removeContainer $CONTAINER_NAME
 
   removeContainer $CONTAINER_NAME
 }
